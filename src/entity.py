@@ -1,5 +1,6 @@
 import pygame
 
+
 class Entity:
     def __init__(self, x: float, y: float, width: int, height: int, image_map: dict[str, pygame.Surface]):
         self.width = width

@@ -1,4 +1,3 @@
-import pygame
 from loaders import load_image
 from entity import Entity
 
@@ -19,6 +18,7 @@ class Chest(Entity):
         else:
             self.set_image_state("open")
         self.is_open = not self.is_open
+
 
 class Tree(Entity):
     def __init__(self, x: float, y: float):
