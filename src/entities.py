@@ -53,6 +53,7 @@ class Zombie(Entity):
         super().__init__(x, y, 32, 64, images)
         self.set_image_state("default")
         self.health = 100
+        self.max_health = 100
 
     def tick(self, dt: float):
         super().tick(dt)

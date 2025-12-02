@@ -15,6 +15,7 @@ class Camera(Entity):
         self.attack_damage = 15
         self.set_image_state("default")
         self.health = 100
+        self.max_health = 100
         self.display_width = display_width
         self.display_height = display_height
 
@@ -83,8 +84,9 @@ def get_screen_bounds(camera: Camera) -> Tuple[int, int, int, int]:
     cam_px = int(camera.x * TILE_SIZE)
     cam_py = int(camera.y * TILE_SIZE)
 
-    min_x = cam_px - (camera.display_width // 2)
-    max_x = cam_px + (camera.display_width // 2)
-    min_y = cam_py - (camera.display_height // 2)
-    max_y = cam_py + (camera.display_height // 2)
+    margin = 2  # Extra tiles of margin for large sprites
+    min_x = (cam_px - (camera.display_width // 2)) // TILE_SIZE - margin
+    max_x = (cam_px + (camera.display_width // 2)) // TILE_SIZE + margin
+    min_y = (cam_py - (camera.display_height // 2)) // TILE_SIZE - margin
+    max_y = (cam_py + (camera.display_height // 2)) // TILE_SIZE + margin
     return min_x, min_y, max_x, max_y

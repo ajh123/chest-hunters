@@ -23,6 +23,7 @@ class Entity:
         self.image_map = image_map
         self.current_image_key: str | None = None
         self.health = -1 # -1 means infinite health
+        self.max_health = -1
 
     def set_world(self, world: World):
         self.world = world

@@ -61,3 +61,24 @@ class Renderer:
                     offset_y = 0
                 self.screen.blit(img, (screen_x, screen_y - offset_y))
 
+                if entity.health > 0 and entity.max_health > 0:
+                    if entity.health < entity.max_health:
+                        health_bar_width = 40
+                        health_bar_height = 6
+                        health_ratio = entity.health / entity.max_health
+                        health_bar_x = screen_x + (img.get_width() - health_bar_width) // 2
+                        health_bar_y = screen_y - offset_y - 10
+                        
+                        # Draw background bar (red)
+                        pygame.draw.rect(
+                            self.screen,
+                            (255, 0, 0),
+                            (health_bar_x, health_bar_y, health_bar_width, health_bar_height)
+                        )
+                        
+                        # Draw foreground bar (green)
+                        pygame.draw.rect(
+                            self.screen,
+                            (0, 255, 0),
+                            (health_bar_x, health_bar_y, int(health_bar_width * health_ratio), health_bar_height)
+                        )
