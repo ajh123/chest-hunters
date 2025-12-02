@@ -37,6 +37,11 @@ class Camera(Entity):
         self.set_velocity(dx * self.speed, dy * self.speed)
 
     def world_to_screen(self, world_x: int, world_y: int, tile_size: int) -> tuple[int, int]:
-        screen_x = int((world_x * tile_size) - self.x + (self.width // 2))
-        screen_y = int((world_y * tile_size) - self.y + (self.height // 2))
+        # `self.x`/`self.y` are stored in world (tile) coordinates. Convert
+        # them to pixel coordinates before subtracting from world positions.
+        cam_px = int(self.x * tile_size)
+        cam_py = int(self.y * tile_size)
+
+        screen_x = int((world_x * tile_size) - cam_px + (self.width // 2))
+        screen_y = int((world_y * tile_size) - cam_py + (self.height // 2))
         return screen_x, screen_y
