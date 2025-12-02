@@ -1,13 +1,15 @@
 from typing import List, Sequence, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from .entity import Entity
+    from graphics import MessageLog
 from .tiles import TileMap, Tile
 
 
 class World:
-    def __init__(self):
+    def __init__(self, message_log: MessageLog):
         self.tile_map = TileMap()
         self.entities: List[Entity] = []
+        self.log = message_log
 
     def add_entity(self, entity: Entity):
         self.entities.append(entity)

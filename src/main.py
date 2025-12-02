@@ -2,10 +2,9 @@ import pygame
 import random
 
 from camera import Camera
-from renderer import Renderer
+from graphics import Renderer, ImageLoader, MessageLog
 from entities import Chest, Tree, Zombie
 from world import Tile, World
-from file_utils import ImageLoader
 
 # Global tiles
 GRASS = Tile("grass", "assets/0_0.png")
@@ -15,13 +14,17 @@ DIRT = Tile("dirt", "assets/32_64.png")
 class Game:
     def __init__(self, width: int = 800, height: int = 600):
         pygame.init()
+        pygame.font.init()
         self.screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
+        self.font = pygame.font.SysFont("arial", 20)
         self.running = True
+        self.log = MessageLog(self.font)
 
-        self.world = World()
+        self.world = World(self.log)
         self.camera = Camera(self.screen.get_width(), self.screen.get_height())
         self.camera.set_world(self.world)
+
         self.loader = ImageLoader()
         self.renderer = Renderer(self.screen, self.camera, self.world, self.loader)
 
@@ -33,6 +36,9 @@ class Game:
         self.last_time = pygame.time.get_ticks() / 1000
 
     def run(self):
+        self.log.add("Welcome to Chest Hunters!", duration=15)
+        self.log.add("Collect treasure from chests to upgrade your skills.", duration=15)
+        self.log.add("Attack zombies to gain experience.", duration=15)
         while self.running:
             self.handle_events()
             self.update_timing()
@@ -110,7 +116,10 @@ class Game:
                 del zombie
 
     def render(self):
+        self.screen.fill((0, 0, 0))
         self.renderer.render()
+        self.log.draw(self.screen)
+        pygame.display.flip()
 
 
 if __name__ == "__main__":

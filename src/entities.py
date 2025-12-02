@@ -19,12 +19,14 @@ class Chest(Entity):
             return
 
         distance = self.world.distance_between(self.x, self.y, player.x, player.y)
-        if distance < 4 and not self.is_open and self.delay <= 0:
-            self.is_open = True
-            self.set_image_state("open")
-            self.delay = time.time() + 1.0  # 1 second delay before it can be opened again
+        if distance < 4:
+            if not self.is_open and self.delay <= 0:
+                self.is_open = True
+                self.set_image_state("open")
+                self.delay = time.time() + 1.0  # 1 second delay before it can be opened again
+                self.world.log.add("The chest is a lie! It is completely empty.", duration=5)
         else:
-            print("Too far to interact with the chest.")
+            self.world.log.add("Too far to interact with the chest.")
 
     def tick(self, dt: float):
         super().tick(dt)

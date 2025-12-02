@@ -2,7 +2,7 @@ import pygame
 from camera import Camera, world_to_screen
 from world import World
 from constants import TILE_SIZE
-from file_utils import ImageLoader
+from .image_utils import ImageLoader
 
 
 class Renderer:
@@ -19,12 +19,8 @@ class Renderer:
         self.image_loader = image_loader
 
     def render(self):
-        self.screen.fill((0, 0, 0))
-
         self.renderTileMap()
-        self.renderEntities()
-
-        pygame.display.flip()
+        self.renderEntities()        
 
     def renderTileMap(self):
         # Determine visible tile range
