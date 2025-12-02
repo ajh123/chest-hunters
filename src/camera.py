@@ -1,15 +1,11 @@
 import pygame
+from entity import Entity
 
 
-class Camera:
+class Camera(Entity):
     def __init__(self, width: int, height: int, speed: float = 5.0):
-        self.width = width
-        self.height = height
-        self.x = 0.0  # world coordinates of camera center
-        self.y = 0.0
+        super().__init__(0, 0, width, height, image_map={})  # Initialize the parent Entity class
         self.speed = speed
-        self._input_dx = 0.0
-        self._input_dy = 0.0
 
     def handle_input(self):
         """Read input and store movement vector."""
@@ -28,13 +24,7 @@ class Camera:
             factor = 0.7071  # 1/sqrt(2)
             dx *= factor
             dy *= factor
-        self._input_dx = dx * self.speed
-        self._input_dy = dy * self.speed
-
-    def tick(self):
-        """Update camera position based on input."""
-        self.x += self._input_dx
-        self.y += self._input_dy
+        self.set_velocity(dx * self.speed, dy * self.speed)
 
     def world_to_screen(self, world_x: int, world_y: int, tile_size: int) -> tuple[int, int]:
         screen_x = int((world_x * tile_size) - self.x + (self.width // 2))
