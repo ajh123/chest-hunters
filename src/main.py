@@ -5,13 +5,13 @@ pygame.init()
 from camera import Camera
 from renderer import Renderer
 from entities import Chest, Tree, Zombie
-from utils import load_image
 from world import Tile, World, is_entity_at
+from file_utils import ImageLoader
 
 import random
 
-GRASS = Tile("grass", load_image("assets/0_0.png"))
-DIRT = Tile("dirt", load_image("assets/32_64.png"))
+GRASS = Tile("grass", "assets/0_0.png")
+DIRT = Tile("dirt", "assets/32_64.png")
 
 def generate_tiles(world: World):
     random.seed(0)
@@ -47,7 +47,8 @@ def main():
     clock = pygame.time.Clock()
     world = World()
     camera = Camera(world, screen.get_width(), screen.get_height())
-    renderer = Renderer(screen, camera, world)
+    image_loader = ImageLoader()
+    renderer = Renderer(screen, camera, world, image_loader)
 
     generate_tiles(world)
 

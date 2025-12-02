@@ -1,12 +1,11 @@
-from utils import load_image
 from world import World, Entity
 
 
 class Chest(Entity):
     def __init__(self, world: World, x: float, y: float):
         images = {
-            "closed": load_image("assets/chest_closed.png"),
-            "open": load_image("assets/chest_open.png")
+            "closed": "assets/chest_closed.png",
+            "open": "assets/chest_open.png"
         }
         super().__init__(world, x, y, 32, 32, images)
         self.set_image_state("closed")
@@ -23,7 +22,7 @@ class Chest(Entity):
 class Tree(Entity):
     def __init__(self, world: World, x: float, y: float):
         images = {
-            "default": load_image("assets/jungle-tree_0.png")
+            "default": "assets/jungle-tree_0.png"
         }
         super().__init__(world, x, y, 64, 64, images)
         self.set_image_state("default")
@@ -32,7 +31,7 @@ class Tree(Entity):
 class Zombie(Entity):
     def __init__(self, world: World, x: float, y: float):
         images = {
-            "default": load_image("assets/zombie000.png")
+            "default": "assets/zombie000.png"
         }
         super().__init__(world, x, y, 32, 64, images)
         self.set_image_state("default")

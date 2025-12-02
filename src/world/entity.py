@@ -1,9 +1,15 @@
-import pygame
 from .world import World
 from .utils import is_entity_at
 
 class Entity:
-    def __init__(self, world: World, x: float, y: float, width: int, height: int, image_map: dict[str, pygame.Surface]):
+    def __init__(self,
+                 world: World,
+                 x: float,
+                 y: float,
+                 width: int,
+                 height: int,
+                 image_map: dict[str, str]
+        ):
         self.world = world
         self.world.add_entity(self)
         self.width = width
@@ -78,7 +84,7 @@ class Entity:
         if key in self.image_map:
             self.current_image_key = key
 
-    def get_current_image(self) -> pygame.Surface | None:
+    def get_current_image(self) -> str | None:
         if self.current_image_key:
             return self.image_map[self.current_image_key]
         return None

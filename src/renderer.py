@@ -2,6 +2,7 @@ import pygame
 from camera import Camera
 from world import World
 from constants import TILE_SIZE
+from file_utils import ImageLoader
 
 
 class Renderer:
@@ -9,11 +10,13 @@ class Renderer:
             self,
             screen: pygame.Surface,
             camera: Camera,
-            world: World
+            world: World,
+            image_loader: ImageLoader
         ):
         self.screen = screen
         self.camera = camera
         self.world = world
+        self.image_loader = image_loader
 
     def render(self):
         self.screen.fill((0, 0, 0))
@@ -39,9 +42,10 @@ class Renderer:
             for y in range(start_y, end_y):            
                 tile = self.world.get_tile_at(x, y)
                 if tile:
+                    image = self.image_loader.load(tile.image)
                     screen_x, screen_y = self.camera.world_to_screen(x, y, TILE_SIZE)
                     #print(f"Rendering tile at world ({x}, {y}) to screen ({screen_x}, {screen_y})")
-                    self.screen.blit(tile.image, (screen_x, screen_y))
+                    self.screen.blit(image, (screen_x, screen_y))
 
     def renderEntities(self):
         for entity in self.world.get_entities():
@@ -49,6 +53,7 @@ class Renderer:
             #print(f"Rendering entity at world ({entity.x}, {entity.y}) to screen ({screen_x}, {screen_y})")
             img = entity.get_current_image()
             if img:
+                img = self.image_loader.load(img)
                 # Align entity sprite so its base sits on the tile row.
                 # Many entity sprites are taller than a single tile; draw them
                 # shifted up by the difference between sprite height and tile size.

@@ -4,13 +4,12 @@ if TYPE_CHECKING:
 
 import pygame
 from world import Entity
-from utils import load_image
 
 
 class Camera(Entity):
     def __init__(self, world: World, width: int, height: int, speed: float = 0.1):
         image_map = {
-            "default": load_image("assets/player004.png")
+            "default": "assets/player004.png"
         }
         super().__init__(world, 0, 0, width, height, image_map=image_map)  # Initialize the parent Entity class
         self.speed = speed
