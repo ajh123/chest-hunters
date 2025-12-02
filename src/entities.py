@@ -27,3 +27,20 @@ class Tree(Entity):
         }
         super().__init__(world, x, y, 64, 64, images)
         self.set_image_state("default")
+
+
+class Zombie(Entity):
+    def __init__(self, world: World, x: float, y: float):
+        images = {
+            "default": load_image("assets/zombie000.png")
+        }
+        super().__init__(world, x, y, 32, 64, images)
+        self.set_image_state("default")
+        self.health = 100
+
+    def tick(self):
+        super().tick()
+        # Simple random movement logic
+        import random
+        if random.random() < 0.1:
+            self.set_velocity(random.uniform(-0.1, 0.1), random.uniform(-0.1, 0.1))

@@ -1,10 +1,11 @@
-from typing import List, Type
-from .entity import Entity
-from .world import World
+from typing import List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .entity import Entity
+    from .world import World
 from constants import TILE_SIZE
 
 
-def is_entity_at(world: World, x: int, y: int, excluded: List[Type[Entity]] | None) -> Entity | None:
+def is_entity_at(world: 'World', x: int, y: int, excluded: List['Entity'] | None) -> 'Entity' | None:
     # Determine whether any non-excluded entity occupies the given tile
     # coordinates. Entities store their position as world (tile) coords
     # but their width/height are pixels, so convert size to tile coverage

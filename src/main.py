@@ -4,7 +4,7 @@ pygame.init()
 
 from camera import Camera
 from renderer import Renderer
-from entities import Chest, Tree
+from entities import Chest, Tree, Zombie
 from utils import load_image
 from world import Tile, World, is_entity_at
 
@@ -32,8 +32,18 @@ def generate_tiles(world: World):
                 if not is_entity_at(world, x, y, excluded):
                     Chest(world, x, y)
 
+def random_zombies(world: World, count: int):
+    excluded = [Camera]
+    for _ in range(count):
+        x = random.randint(-50, 50)
+        y = random.randint(-50, 50)
+        
+        if not is_entity_at(world, x, y, excluded):
+            Zombie(world, x, y)
+
 def main():
     global screen
+    random.seed(0)
     clock = pygame.time.Clock()
     world = World()
     camera = Camera(world, screen.get_width(), screen.get_height())
@@ -55,6 +65,10 @@ def main():
 
         for entity in world.get_entities():
             entity.tick()
+
+        r = random.random()
+        if r < 0.007:
+            random_zombies(world, 5)
 
         renderer.render()
         clock.tick(60)
