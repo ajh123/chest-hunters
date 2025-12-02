@@ -1,3 +1,7 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from camera import Camera
+
 from .world import World
 from constants import TILE_SIZE
 
@@ -84,7 +88,8 @@ class Entity:
             self.y = orig_y
             self.velocity_dy = 0.0
 
-
+    def interact(self, player: 'Camera'):
+        pass
 
     def take_damage(self, amount: float):
         if self.health < 0:

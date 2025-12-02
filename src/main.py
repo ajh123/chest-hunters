@@ -51,6 +51,10 @@ class Game:
                 )
                 self.camera.display_width = event.w
                 self.camera.display_height = event.h
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left click
+                    self.camera.handle_click(event.pos[0], event.pos[1])
+
         self.camera.handle_input()
 
     def update_timing(self):

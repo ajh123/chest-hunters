@@ -40,3 +40,36 @@ class World:
                 source.y + source.world_units_height > entity.y):
                 return entity
         return None
+    
+    def point_collision(self, x: float, y: float, excluded: Sequence[Type[Entity]] | None = None) -> Entity | None:
+        """
+        Check if the point (x, y) collides with any entity in the world,
+        excluding entities of the specified types.
+
+        Uses axis-aligned bounding box (AABB) collision detection.
+        """
+        for entity in self.get_entities():
+            if excluded and isinstance(entity, tuple(excluded)):
+                continue
+
+            if (x >= entity.x and
+                x <= entity.x + entity.world_units_width and
+                y >= entity.y and
+                y <= entity.y + entity.world_units_height):
+                return entity
+        return None
+
+    def distance_between(self, sx: float, sy: float, ex: float, ey: float) -> float:
+        """Calculate Euclidean distance between two points."""
+        return ((sx - ex) ** 2 + (sy - ey) ** 2) ** 0.5
+    
+    def entities_in_radius(self, x: float, y: float, radius: float, excluded: Sequence[Type[Entity]] | None = None) -> List[Entity]:
+        """Return a list of entities within the specified radius from point (x, y)."""
+        result = []
+        for entity in self.get_entities():
+            if excluded and isinstance(entity, tuple(excluded)):
+                continue
+            dist = self.distance_between(x, y, entity.x + entity.world_units_width / 2, entity.y + entity.world_units_height / 2)
+            if dist <= radius:
+                result.append(entity)
+        return result

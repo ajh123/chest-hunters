@@ -1,4 +1,6 @@
+from camera import Camera
 from world import Entity
+import time
 
 
 class Chest(Entity):
@@ -10,14 +12,27 @@ class Chest(Entity):
         super().__init__(x, y, 32, 32, images)
         self.set_image_state("closed")
         self.is_open = False
+        self.delay = 0.0 # Delay in seconds before it can be opened again
 
-    def toggle(self):
-        if self.is_open:
-            self.set_image_state("closed")
-        else:
+    def interact(self, player: 'Camera'):
+        if self.world is None:
+            return
+
+        distance = self.world.distance_between(self.x, self.y, player.x, player.y)
+        if distance < 4 and not self.is_open and self.delay <= 0:
+            self.is_open = True
             self.set_image_state("open")
-        self.is_open = not self.is_open
+            self.delay = time.time() + 1.0  # 1 second delay before it can be opened again
+        else:
+            print("Too far to interact with the chest.")
 
+    def tick(self, dt: float):
+        super().tick(dt)
+        if self.is_open and time.time() >= self.delay:
+            self.is_open = False
+            self.set_image_state("closed")
+            self.delay = 0.0
+        
 
 class Tree(Entity):
     def __init__(self, x: float, y: float):
@@ -39,7 +54,19 @@ class Zombie(Entity):
 
     def tick(self, dt: float):
         super().tick(dt)
+
+        if not self.world:
+            return
+
         # Simple random movement logic
         import random
         if random.random() < 0.1:
             self.set_velocity(random.uniform(-3, 3), random.uniform(-3, 3))
+
+        # Simple attack logic here
+
+        if random.random() < 0.05:
+            res = self.world.entities_in_radius(self.x, self.y, 2, excluded=[Zombie])
+            for entity in res:
+                if isinstance(entity, Camera):
+                    entity.take_damage(5)

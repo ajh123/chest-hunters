@@ -1,5 +1,5 @@
 import pygame
-from camera import Camera
+from camera import Camera, world_to_screen
 from world import World
 from constants import TILE_SIZE
 from file_utils import ImageLoader
@@ -43,14 +43,12 @@ class Renderer:
                 tile = self.world.get_tile_at(x, y)
                 if tile:
                     image = self.image_loader.load(tile.image)
-                    screen_x, screen_y = self.camera.world_to_screen(x, y, TILE_SIZE)
-                    #print(f"Rendering tile at world ({x}, {y}) to screen ({screen_x}, {screen_y})")
+                    screen_x, screen_y = world_to_screen(x, y, self.camera)
                     self.screen.blit(image, (screen_x, screen_y))
 
     def renderEntities(self):
         for entity in self.world.get_entities():
-            screen_x, screen_y = self.camera.world_to_screen(entity.x, entity.y, TILE_SIZE)
-            #print(f"Rendering entity at world ({entity.x}, {entity.y}) to screen ({screen_x}, {screen_y})")
+            screen_x, screen_y = world_to_screen(entity.x, entity.y, self.camera)
             img = entity.get_current_image()
             if img:
                 img = self.image_loader.load(img)
@@ -61,3 +59,4 @@ class Renderer:
                 if offset_y < 0:
                     offset_y = 0
                 self.screen.blit(img, (screen_x, screen_y - offset_y))
+
