@@ -1,5 +1,5 @@
 import pygame
-from camera import Camera, world_to_screen
+from camera import Camera, world_to_screen, get_screen_bounds
 from world import World
 from constants import TILE_SIZE
 from .image_utils import ImageLoader
@@ -42,8 +42,13 @@ class Renderer:
                     screen_x, screen_y = world_to_screen(x, y, self.camera)
                     self.screen.blit(image, (screen_x, screen_y))
 
-    def renderEntities(self):
-        for entity in self.world.get_entities():
+    def renderEntities(self):       
+        min_x, min_y, max_x, max_y = get_screen_bounds(self.camera)
+        
+        # Query only entities in the visible region using spatial hash
+        visible_entities = self.world.get_entities_in_region(min_x, min_y, max_x, max_y)
+        
+        for entity in visible_entities:
             screen_x, screen_y = world_to_screen(entity.x, entity.y, self.camera)
             img = entity.get_current_image()
             if img:

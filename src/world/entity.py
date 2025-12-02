@@ -69,6 +69,7 @@ class Entity:
         # 1) Combined move
         if not _collides_at(target_x, target_y):
             self.x, self.y = target_x, target_y
+            self.world.update_entity_position(self)
             return
 
         # 2) Horizontal-only (from original Y)
@@ -88,6 +89,10 @@ class Entity:
             self.y = orig_y
             self.velocity_dy = 0.0
 
+        # Update spatial hash if position changed
+        if self.x != orig_x or self.y != orig_y:
+            self.world.update_entity_position(self)
+
     def interact(self, player: 'Camera'):
         pass
 
@@ -103,7 +108,7 @@ class Entity:
         if not self.world:
             return
 
-        self.world.get_entities().remove(self)
+        self.world.remove_entity(self)
 
     def set_velocity(self, dx: float, dy: float):
         self.velocity_dx = dx

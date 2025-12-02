@@ -1,7 +1,7 @@
 import pygame
 import random
 
-from camera import Camera
+from camera import Camera, get_screen_bounds
 from graphics import Renderer, ImageLoader, MessageLog
 from entities import Chest, Tree, Zombie
 from world import Tile, World
@@ -18,7 +18,6 @@ class Game:
         self.screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("arial", 20)
-        self.running = True
         self.log = MessageLog(self.font)
 
         self.world = World(self.log)
@@ -34,6 +33,8 @@ class Game:
         self.fixed_dt = 1 / 60
         self.accumulator = 0
         self.last_time = pygame.time.get_ticks() / 1000
+
+        self.running = True
 
     def run(self):
         self.log.add("Welcome to Chest Hunters!", duration=15)
@@ -75,7 +76,9 @@ class Game:
             self.accumulator -= self.fixed_dt
 
     def update_world(self, dt: float):
-        for entity in self.world.get_entities():
+        min_x, min_y, max_x, max_y = get_screen_bounds(self.camera)
+        entities = self.world.get_entities_in_region(min_x, min_y, max_x, max_y)
+        for entity in entities:
             entity.tick(dt)
         if random.random() < 0.007:
             self.spawn_zombies(5)

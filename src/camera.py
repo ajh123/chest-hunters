@@ -61,6 +61,7 @@ class Camera(Entity):
         self.health = 100
 
 def world_to_screen(world_x: float, world_y: float, camera: Camera) -> Tuple[int, int]:
+    """Convert world coordinates to screen coordinates based on the camera position."""
     cam_px = int(camera.x * TILE_SIZE)
     cam_py = int(camera.y * TILE_SIZE)
 
@@ -69,9 +70,21 @@ def world_to_screen(world_x: float, world_y: float, camera: Camera) -> Tuple[int
     return screen_x, screen_y
 
 def screen_to_world(screen_x: int, screen_y: int, camera: Camera) -> Tuple[float, float]:
+    """Convert screen coordinates to world coordinates based on the camera position."""
     cam_px = int(camera.x * TILE_SIZE)
     cam_py = int(camera.y * TILE_SIZE)
 
     world_x = (screen_x + cam_px - (camera.display_width // 2)) / TILE_SIZE
     world_y = (screen_y + cam_py - (camera.display_height // 2)) / TILE_SIZE
     return world_x, world_y
+
+def get_screen_bounds(camera: Camera) -> Tuple[int, int, int, int]:
+    """Get the world coordinate bounds of the camera's visible area."""
+    cam_px = int(camera.x * TILE_SIZE)
+    cam_py = int(camera.y * TILE_SIZE)
+
+    min_x = cam_px - (camera.display_width // 2)
+    max_x = cam_px + (camera.display_width // 2)
+    min_y = cam_py - (camera.display_height // 2)
+    max_y = cam_py + (camera.display_height // 2)
+    return min_x, min_y, max_x, max_y
