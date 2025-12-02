@@ -4,13 +4,17 @@ A simple 2D top-down adventure game built using Pygame. The player navigates thr
 
 Currently in development, there is no enemy AI or even treasure collection implemented yet. However, the basic movement and environment setup is in place.
 
-## How does this relate to our personal skills?
+### How does this relate to our personal skills?
 
 - Increases our Strategic thinking and mindset.
 - As it's a single player game.it nurtures independence
 - It promotes friendly competitiveness as its a offline player based game.
 - It helps with responsibility - users have to consistently collect treasures as without them, the opponents grow stronger and the threat level increases.
 - The game helps to enhance competitiveness. 
+
+### License
+
+All rights reserved. This project is proprietary and may not be copied, modified, or distributed without explicit permission from one author.
 
 ## Assets used
 
