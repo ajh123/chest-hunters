@@ -1,4 +1,5 @@
 import pygame
+from loaders import load_image
 
 
 class Tile:
@@ -8,20 +9,17 @@ class Tile:
 
 class TileMap:
     def __init__(self):
-        self.tiles: dict[tuple[int, int], Tile] = {}
+        self.tiles: dict[tuple[int, int, int], Tile] = {}
 
-    def add_tile(self, x: int, y: int, tile: Tile):
-        self.tiles[(x, y)] = tile
+    def add_tile(self, x: int, y: int, tile: Tile, layer: int = 0):
+        self.tiles[(x, y, layer)] = tile
 
-    def get_tile(self, x: int, y: int) -> Tile | None:
-        return self.tiles.get((x, y))
+    def get_tile(self, x: int, y: int, layer: int = 0) -> Tile | None:
+        return self.tiles.get((x, y, layer))
 
-    def remove_tile(self, x: int, y: int):
-        self.tiles.pop((x, y), None)
-    
-GRASS = Tile("grass", pygame.Surface((32, 32)))
-GRASS.image.fill((0, 255, 0))  # Fill grass tile with green color
-STONE = Tile("stone", pygame.Surface((32, 32)))
-STONE.image.fill((128, 128, 128))  # Fill stone tile with gray color
-SAND = Tile("sand", pygame.Surface((32, 32)))
-SAND.image.fill((194, 178, 128))  # Fill sand tile with sandy color
+    def remove_tile(self, x: int, y: int, layer: int = 0):
+        self.tiles.pop((x, y, layer), None)
+
+GRASS = Tile("grass", load_image("assets/0_0.png"))
+DIRT = Tile("dirt", load_image("assets/32_64.png"))
+TREE = Tile("tree", load_image("assets/tree.png"))

@@ -26,7 +26,8 @@ class Renderer:
 
         for x in range(start_x, end_x):
             for y in range(start_y, end_y):
-                tile = self.tile_map.get_tile(x, y)
-                if tile:
-                    screen_x, screen_y = self.camera.world_to_screen(x, y, TILE_SIZE)
-                    self.screen.blit(tile.image, (screen_x, screen_y))
+                for layer in range(3):  # Assuming 3 layers for now
+                    tile = self.tile_map.get_tile(x, y, layer)
+                    if tile:
+                        screen_x, screen_y = self.camera.world_to_screen(x, y, TILE_SIZE)
+                        self.screen.blit(tile.image, (screen_x, screen_y))

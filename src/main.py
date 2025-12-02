@@ -1,26 +1,31 @@
 import pygame
+screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+pygame.init()
+
 from camera import Camera
-from tiles import TileMap, GRASS, STONE, SAND
+from tiles import TileMap, GRASS, DIRT, TREE
 from renderer import Renderer
 
+def generate_tiles(tile_map: TileMap):
+    for x in range(-50, 50):
+        for y in range(-50, 50):
+            if (x + y) % 3 == 0:
+                tile_map.add_tile(x, y, DIRT)
+            else:
+                tile_map.add_tile(x, y, GRASS)
+
+                if (x + y) % 2 == 0:
+                    tile_map.add_tile(x, y, TREE, layer=1)
+
 def main():
-    pygame.init()
-    screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
+    global screen
     clock = pygame.time.Clock()
 
     camera = Camera(screen.get_width(), screen.get_height())
     tile_map = TileMap()
     renderer = Renderer(screen, camera, tile_map)
 
-    # Add some tiles to the map. Start at -25, -25 to center around (0,0)
-    for x in range(-25, 25):
-        for y in range(-25, 25):
-            if (x + y) % 3 == 0:
-                tile_map.add_tile(x, y, GRASS)
-            elif (x + y) % 3 == 1:
-                tile_map.add_tile(x, y, STONE)
-            else:
-                tile_map.add_tile(x, y, SAND)
+    generate_tiles(tile_map)
 
     running = True
     while running:
