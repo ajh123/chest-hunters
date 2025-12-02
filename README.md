@@ -1,5 +1,8 @@
-
-
+## How does this relate to our personal skills?
+- Increases our Strategic thinking and mindset.
+- As it's a single player game.it nurtures independence
+- It promotes friendly competitiveness as its a offline player based game.
+- It helps with responsibilty- users have to consistently collect treasures as without them, the opponents grow stronger and the threat level increases.
 
 
 
