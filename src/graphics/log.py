@@ -1,85 +1,88 @@
 import pygame
-import time
-from typing import List, Tuple
+import pygame_gui
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    pass
+
 
 class Message:
-    """Represents a single message in the log."""
+    """Represents a single message in the log with its UI label."""
     def __init__(
-        self, 
-        font: pygame.font.Font,
-        text: str, 
-        duration: float = 3, 
-        color: Tuple[int, int, int] = (255, 255, 255), 
-        bg_color: Tuple[int, int, int] = (0, 0, 0), 
-        padding: int = 5
+        self,
+        manager: pygame_gui.UIManager,
+        container: pygame_gui.elements.UIPanel,
+        text: str,
+        y_position: int,
+        width: int
     ):
         self.text: str = text
-        self.duration: float = duration
-        self.start_time: float = time.time()
-        self.font: pygame.font.Font = font
-        self.color: Tuple[int, int, int] = color
-        self.bg_color: Tuple[int, int, int] = bg_color
-        self.padding: int = padding
+        self.manager = manager
+        self.container = container
 
-        self.surface: pygame.Surface = font.render(text, True, color)
-        self.rect: pygame.Rect = self.surface.get_rect()
+        # Create a label for this message
+        self.label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((5, y_position), (width - 10, 25)),
+            text=text,
+            manager=manager,
+            container=container,
+            object_id="#info_panel/message"
+        )
 
-    def age(self) -> float:
-        return time.time() - self.start_time
-
-    def alpha(self) -> int:
-        """Alpha for both text and background based on age."""
-        elapsed = self.age()
-        if elapsed >= self.duration:
-            return 0
-        return int(255 * (1 - elapsed / self.duration))
-
-    def is_expired(self) -> bool:
-        return self.age() >= self.duration
+    def kill(self):
+        """Remove the UI element."""
+        self.label.kill()
 
 
 class MessageLog:
-    """A reusable message log for PyGame with fading backgrounds."""
-    def __init__(self, font: pygame.font.Font, max_messages: int = 10, padding: int = 5):
-        self.font: pygame.font.Font = font
-        self.max_messages: int = max_messages
-        self.padding: int = padding
-        self.messages: List[Message] = []
+    """A reusable message log for PyGame using pygame_gui, anchored to bottom-left."""
 
-    def add(self, text: str, duration: float = 10, color: Tuple[int, int, int] = (255, 255, 255), bg_color: Tuple[int, int, int] = (0, 0, 0)):
+    PANEL_WIDTH = 400
+    PANEL_HEIGHT = 200
+    PADDING = 8
+    MESSAGE_HEIGHT = 35
+
+    def __init__(self, manager: pygame_gui.UIManager, screen_height: int, max_messages: int = 10):
+        self.manager = manager
+        self.max_messages: int = max_messages
+        self.messages: List[Message] = []
+        self.screen_height = screen_height
+
+        # Create a panel at the bottom-left
+        panel_y = screen_height - self.PANEL_HEIGHT - self.PADDING
+        self.panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect((self.PADDING, panel_y), (self.PANEL_WIDTH, self.PANEL_HEIGHT)),
+            manager=self.manager,
+            object_id="#info_panel",
+        )
+
+    def add(self, text: str):
+        # Remove oldest message if at capacity
+        if len(self.messages) >= self.max_messages:
+            old_message = self.messages.pop(0)
+            old_message.kill()
+
+        # Calculate y position for new message (at the bottom of existing messages)
+        y_position = self.PANEL_HEIGHT - self.MESSAGE_HEIGHT - self.PADDING - (len(self.messages) * self.MESSAGE_HEIGHT)
+
         message = Message(
-            font=self.font,
+            manager=self.manager,
+            container=self.panel,
             text=text,
-            duration=duration,
-            color=color,
-            bg_color=bg_color,
-            padding=self.padding
+            y_position=y_position,
+            width=self.PANEL_WIDTH,
         )
         self.messages.append(message)
-        if len(self.messages) > self.max_messages:
-            self.messages.pop(0)
+        self._reposition_messages()
 
-    def draw(self, surface: pygame.Surface):
-        y_offset = surface.get_height() - self.padding
-        self.messages = [m for m in self.messages if not m.is_expired()]
+    def _reposition_messages(self):
+        """Reposition all message labels from bottom to top."""
+        for i, message in enumerate(reversed(self.messages)):
+            y_position = self.PANEL_HEIGHT - self.MESSAGE_HEIGHT - self.PADDING - (i * self.MESSAGE_HEIGHT)
+            message.label.set_relative_position((5, y_position))
 
-        for message in reversed(self.messages):
-            alpha = message.alpha()
-            if alpha <= 0:
-                continue
-
-            # Render text with alpha
-            text_surf = message.font.render(message.text, True, message.color)
-            text_surf.set_alpha(alpha)
-            text_rect = text_surf.get_rect(bottomleft=(self.padding, y_offset))
-
-            # Draw fading background
-            bg_surf = pygame.Surface((text_rect.width + 2 * message.padding, text_rect.height + 2 * message.padding))
-            bg_surf.set_alpha(alpha)
-            bg_surf.fill(message.bg_color)
-            surface.blit(bg_surf, (text_rect.left - message.padding, text_rect.top - message.padding))
-
-            # Draw text on top
-            surface.blit(text_surf, text_rect)
-            y_offset -= text_rect.height + self.padding
-
+    def handle_resize(self, screen_height: int):
+        """Handle window resize by repositioning the panel."""
+        self.screen_height = screen_height
+        panel_y = screen_height - self.PANEL_HEIGHT - self.PADDING
+        self.panel.set_position((self.PADDING, panel_y))

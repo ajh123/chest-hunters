@@ -1,82 +1,96 @@
 import pygame
-from typing import Tuple
-from player import Player
+import pygame_gui
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from player import Player
 
 
 class HUD:
-    """HUD showing health, points, and lives in the top-left corner with a required background."""
+    """HUD showing health, points, and lives in the top-left corner using pygame_gui."""
+    
+    PANEL_WIDTH = 220
+    PANEL_HEIGHT = 120
+    PADDING = 8
+
     def __init__(
         self,
-        font: pygame.font.Font,
-        player: Player,
-        padding: int = 8,
-        bg_color: Tuple[int, int, int] = (0, 0, 0),
-        bar_color: Tuple[int, int, int] = (200, 50, 50),
-        bar_bg_color: Tuple[int, int, int] = (80, 0, 0),
-        text_color: Tuple[int, int, int] = (255, 255, 255)
+        manager: pygame_gui.UIManager,
+        player: "Player | None" = None,
     ):
-        self.player = player
-        self.font = font
+        self._player = player
+        self.manager = manager
 
-        self.padding = padding
-        self.bg_color = bg_color
-        self.bar_color = bar_color
-        self.bar_bg_color = bar_bg_color
-        self.text_color = text_color
-
-        self.health_bar_width = 200
-        self.health_bar_height = 20
-
-    def draw(self, surface: pygame.Surface):
-        x = self.padding
-        y = self.padding
-
-        points_surf = self.font.render(f"Points: {self.player.points}", True, self.text_color)
-        lives_surf = self.font.render(f"Lives: {self.player.lives}", True, self.text_color)
-        health_label = self.font.render("Health", True, self.text_color)
-
-        content_width = max(
-            self.health_bar_width,
-            health_label.get_width(),
-            points_surf.get_width(),
-            lives_surf.get_width()
+        # Create a panel in the top-left corner with semi-transparent background
+        self.panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect((self.PADDING, self.PADDING), (self.PANEL_WIDTH, self.PANEL_HEIGHT)),
+            manager=self.manager,
+            object_id="#info_panel",
         )
 
-        content_height = (
-            self.health_bar_height +
-            self.padding +
-            points_surf.get_height() +
-            self.padding +
-            lives_surf.get_height()
-        )
-
-        bg_rect = pygame.Rect(
-            x - self.padding,
-            y - self.padding,
-            content_width + self.padding * 2,
-            content_height + self.padding * 2
-        )
-
-        pygame.draw.rect(surface, self.bg_color, bg_rect)
+        bar_width = self.PANEL_WIDTH - self.PADDING * 2
 
         # Health bar
-        fill_ratio = self.player.health / self.player.max_health
-        bar_bg_rect = pygame.Rect(x, y, self.health_bar_width, self.health_bar_height)
-        bar_rect = pygame.Rect(x, y, int(self.health_bar_width * fill_ratio), self.health_bar_height)
+        self.health_bar = pygame_gui.elements.UIStatusBar(
+            relative_rect=pygame.Rect((self.PADDING, self.PADDING), (bar_width, 25)),
+            manager=self.manager,
+            container=self.panel
+        )
 
-        pygame.draw.rect(surface, self.bar_bg_color, bar_bg_rect)
-        pygame.draw.rect(surface, self.bar_color, bar_rect)
+        # Health label (centered on top of health bar)
+        self.health_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.PADDING, self.PADDING), (bar_width, 25)),
+            text="Health",
+            manager=self.manager,
+            container=self.panel,
+            parent_element=self.panel,
+            object_id="#info_panel/centered_message"
+        )
 
-        # Label positioned on top of the bar (centered)
-        label_x = x + (self.health_bar_width - health_label.get_width()) // 2
-        label_y = y + (self.health_bar_height - health_label.get_height()) // 2
-        surface.blit(health_label, (label_x, label_y))
+        # Points label (left-aligned with health bar)
+        points_text = f"Points: {self._player.points}" if self._player else "Points: 0"
+        self.points_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.PADDING, 40), (bar_width, 30)),
+            text=points_text,
+            manager=self.manager,
+            container=self.panel,
+            parent_element=self.panel,
+            object_id="#info_panel/message"
+        )
 
-        y += self.health_bar_height + self.padding
+        # Lives label (left-aligned with health bar)
+        lives_text = f"Lives: {self._player.lives}" if self._player else "Lives: 0"
+        self.lives_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.PADDING, 75), (bar_width, 30)),
+            text=lives_text,
+            manager=self.manager,
+            container=self.panel,
+            parent_element=self.panel,
+            object_id="#info_panel/message"
+        )
 
-        # Points
-        surface.blit(points_surf, (x, y))
-        y += points_surf.get_height() + self.padding
+    @property
+    def player(self) -> "Player | None":
+        return self._player
 
-        # Lives
-        surface.blit(lives_surf, (x, y))
+    @player.setter
+    def player(self, value: "Player"):
+        self._player = value
+
+    def update(self):
+        """Update HUD values from player state."""
+        if self._player is None:
+            return
+
+        # Update health bar
+        health_percent = self._player.health / self._player.max_health
+        self.health_bar.percent_full = health_percent
+
+        # Update labels
+        self.points_label.set_text(f"Points: {self._player.points}")
+        self.lives_label.set_text(f"Lives: {self._player.lives}")
+
+    def handle_resize(self):
+        """Handle window resize - HUD stays in top-left, no repositioning needed."""
+        # The panel is anchored to top-left, so no repositioning needed
+        pass

@@ -1,21 +1,22 @@
 from typing import TYPE_CHECKING, Tuple
+
+import pygame
+from constants import TILE_SIZE
+
 if TYPE_CHECKING:
     from main import Game
     from player import Player
     from world import World
     from .image_utils import ImageLoader
 
-import pygame
-from constants import TILE_SIZE
-
 
 class Renderer:
     def __init__(
             self,
-            game: Game,
-            player: Player,
-            world: World,
-            image_loader: ImageLoader
+            game: 'Game',
+            player: 'Player',
+            world: 'World',
+            image_loader: 'ImageLoader'
         ):
         self.game = game
         self.player = player
@@ -88,7 +89,7 @@ class Renderer:
                         )
 
 
-def world_to_screen(world_x: float, world_y: float, player: Player, game: Game) -> Tuple[int, int]:
+def world_to_screen(world_x: float, world_y: float, player: 'Player', game: 'Game') -> Tuple[int, int]:
     """Convert world coordinates to screen coordinates based on the player position."""
     cam_px = int(player.x * TILE_SIZE)
     cam_py = int(player.y * TILE_SIZE)
@@ -97,7 +98,7 @@ def world_to_screen(world_x: float, world_y: float, player: Player, game: Game) 
     screen_y = int((world_y * TILE_SIZE) - cam_py + (game.display_height // 2))
     return screen_x, screen_y
 
-def screen_to_world(screen_x: int, screen_y: int, player: Player, game: Game) -> Tuple[float, float]:
+def screen_to_world(screen_x: int, screen_y: int, player: 'Player', game: 'Game') -> Tuple[float, float]:
     """Convert screen coordinates to world coordinates based on the player position."""
     cam_px = int(player.x * TILE_SIZE)
     cam_py = int(player.y * TILE_SIZE)
@@ -106,7 +107,7 @@ def screen_to_world(screen_x: int, screen_y: int, player: Player, game: Game) ->
     world_y = (screen_y + cam_py - (game.display_height // 2)) / TILE_SIZE
     return world_x, world_y
 
-def get_screen_bounds(player: Player, game: Game) -> Tuple[int, int, int, int]:
+def get_screen_bounds(player: 'Player', game: 'Game') -> Tuple[int, int, int, int]:
     """Get the world coordinate bounds of the player's visible area."""
     cam_px = int(player.x * TILE_SIZE)
     cam_py = int(player.y * TILE_SIZE)

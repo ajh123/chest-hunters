@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from main import Game
 
 import pygame
 from world import Entity
-from graphics.renderer import screen_to_world
+from graphics import screen_to_world
+
+if TYPE_CHECKING:
+    from main import Game
 
 
 class Player(Entity):
-    def __init__(self, game: Game):
+    def __init__(self, game: 'Game'):
         image_map = {
             "default": "assets/player004.png"
         }

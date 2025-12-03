@@ -1,5 +1,7 @@
-from __future__ import annotations
+from typing import Callable
+
 import pygame
+import pygame_gui
 from scenes import Scene
 from scenes.menu_scene import MenuScene
 
@@ -14,6 +16,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        self.ui_manager = pygame_gui.UIManager((width, height), "assets/ui_theme.json")
+
         # fixed-step timing (global)
         self.fixed_dt = 1.0 / 60.0
         self.accumulator = 0.0
@@ -22,8 +26,9 @@ class Game:
         # scene management
         self.current_scene: Scene = MenuScene(self)
 
-    def set_scene(self, scene: Scene):
-        self.current_scene = scene
+    def set_scene(self, scene: Callable[[], Scene]):
+        self.current_scene.on_leave()
+        self.current_scene = scene()
 
     def _gather_events(self) -> list[pygame.event.Event]:
         return list(pygame.event.get())
@@ -39,6 +44,9 @@ class Game:
                     self.screen = pygame.display.set_mode((ev.w, ev.h), pygame.RESIZABLE)
                     self.display_width = ev.w
                     self.display_height = ev.h
+                    self.ui_manager.set_window_resolution((ev.w, ev.h))
+
+                self.ui_manager.process_events(ev)
 
             # deliver raw events to scene first (scene may change state / switch)
             self.current_scene.handle_events(events)
@@ -66,9 +74,13 @@ class Game:
             # per-frame update (non-critical)
             dt = self.clock.get_time() / 1000.0
             self.current_scene.update(dt)
+            self.ui_manager.update(dt)
 
             # render with interpolation
+            self.screen.fill((0, 0, 0))
             self.current_scene.render(self.screen, alpha)
+            self.ui_manager.draw_ui(self.screen)
+            pygame.display.flip()
 
             # cap frame rate
             self.clock.tick(120)

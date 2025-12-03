@@ -16,7 +16,7 @@ class Scene:
       - render(screen, alpha)  # render, alpha is interpolation factor [0..1]
     """
 
-    def __init__(self, game: Game):
+    def __init__(self, game: 'Game'):
         self.game = game
 
     def handle_events(self, events: List[pygame.event.Event]):
@@ -33,3 +33,7 @@ class Scene:
     def render(self, screen: pygame.Surface, alpha: float):
         """Draw the scene. alpha is interpolation fraction for rendering between fixed steps."""
         pass
+
+    def on_leave(self):
+        """Called when the scene is being replaced."""
+        self.game.ui_manager.clear_and_reset()

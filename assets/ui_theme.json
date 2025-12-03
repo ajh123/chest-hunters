@@ -1,0 +1,36 @@
+{
+    "defaults": {
+        "colours": {
+            "normal_text": "#FFFFFFFF" 
+        }
+    },
+    "#info_panel": {
+        "colours": {
+            "dark_bg": "#00000080",
+            "normal_border": "#00000000"
+        },
+        "misc": {
+            "shape": "rounded_rectangle",
+            "shape_corner_radius": "5",
+            "border_width": "0",
+            "shadow_width": "0",
+            "text_horiz_alignment": "left"
+        }
+    },
+    "#info_panel/message": {
+        "colours": {
+            "normal_text": "#FFFFFFFF"
+        },
+        "misc": {
+            "text_horiz_alignment": "left"
+        }
+    },
+    "#info_panel/centered_message": {
+        "colours": {
+            "normal_text": "#FFFFFFFF"
+        },
+        "misc": {
+            "text_horiz_alignment": "center"
+        }
+    }
+}

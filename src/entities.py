@@ -29,7 +29,7 @@ class Chest(Entity):
                 # Give player random points between 5 and 20
                 points = random.randint(5, 20)
                 player.points += points
-                self.world.log.add(f"You found {points} points in the chest!", duration=5)
+                self.world.log.add(f"You found {points} points in the chest!")
         else:
             self.world.log.add("Too far to interact with the chest.")
 
@@ -86,9 +86,9 @@ class Zombie(Entity):
                 points = random.randint(10, 20)
                 attacker.points += points
                 if self.world:
-                    self.world.log.add(f"The zombie was damaged! +{points} points", duration=5)
+                    self.world.log.add(f"The zombie was damaged! +{points} points")
             else:
                 points = random.randint(20, 40)
                 attacker.points += points
                 if self.world:
-                    self.world.log.add(f"The zombie was defeated! +{points} points", duration=5)
+                    self.world.log.add(f"The zombie was defeated! +{points} points")

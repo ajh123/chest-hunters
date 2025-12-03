@@ -23,3 +23,15 @@ All rights reserved. This project is proprietary and may not be copied, modified
 - [Modified 32x32 Treasure chest](https://opengameart.org/content/modified-32x32-treasure-chest) by Blarumyrran (CC0)
 - [Zombie and Skeleton 32x48](https://opengameart.org/content/zombie-and-skeleton-32x48) by Reemax (CC0)
 - [2D Character sprite (redshrike mod)](https://opengameart.org/content/2d-character-sprite-redshrike-mod) by Redshrike (CC-BY 3.0)
+
+## Developer Instructions
+
+Requirements:
+- Python 3.13 < 3.14
+- `pip install -r requirements.txt`
+
+Compile with Nuitka:
+
+```
+nuitka --include-package-data=pygame_gui.data --onefile --standalone .\src\main.py -o ChestHunters.exe --output-dir=dist
+```

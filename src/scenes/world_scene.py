@@ -1,4 +1,3 @@
-from __future__ import annotations
 import pygame
 from typing import TYPE_CHECKING, List
 
@@ -18,17 +17,20 @@ DIRT = Tile("dirt", "assets/32_64.png")
 
 
 class WorldScene(Scene):
-    def __init__(self, game: Game):
+    def __init__(self, game: 'Game'):
         super().__init__(game)
 
-        self.font = pygame.font.SysFont("arial", 20)
-        self.log = MessageLog(self.font)
+        # Create UI elements with the UI manager first (World needs log)
+        self.log = MessageLog(self.game.ui_manager, self.game.display_height)
+        self.hud = HUD(self.game.ui_manager, None)  # Player set after creation
 
         self.world = World(self.log)
         self.player = Player(game)
         self.player.set_world(self.world)
 
-        self.hud = HUD(self.font, self.player)
+        # Update HUD with player reference
+        self.hud.player = self.player
+
         self.loader = ImageLoader()
         self.renderer = Renderer(self.game, self.player, self.world, self.loader)
 
@@ -36,9 +38,9 @@ class WorldScene(Scene):
         self._generate_tiles()
 
         # Optional welcome messages
-        self.log.add("Welcome to Chest Hunters!", duration=15)
-        self.log.add("Collect points from chests to upgrade your skills.", duration=15)
-        self.log.add("Attack zombies to gain points.", duration=15)
+        self.log.add("Welcome to Chest Hunters!")
+        self.log.add("Collect points from chests to upgrade your skills.")
+        self.log.add("Attack zombies to gain points.")
 
     # ----------------------------------------------------------------------
     # Scene interface
@@ -46,7 +48,11 @@ class WorldScene(Scene):
 
     def handle_events(self, events: List[pygame.event.Event]):
         for ev in events:
-            if not self.world.is_frozen and ev.type == pygame.MOUSEBUTTONDOWN:
+            if ev.type == pygame.VIDEORESIZE:
+                # Handle resize for UI elements
+                self.log.handle_resize(self.game.display_height)
+                self.hud.handle_resize()
+            elif not self.world.is_frozen and ev.type == pygame.MOUSEBUTTONDOWN:
                 if ev.button == 1:
                     self.player.handle_click(ev.pos[0], ev.pos[1])
 
@@ -66,18 +72,12 @@ class WorldScene(Scene):
             self._spawn_zombies(5)
 
     def update(self, dt: float):
-        # Frame-only effects (UI animations, smoothing)
-        pass
+        # Update UI elements
+        self.hud.update()
 
     def render(self, screen: pygame.Surface, alpha: float):
-        screen.fill((0, 0, 0))
-
-        # If desired, you can supply alpha to renderer for interpolation
+        # Render world - UI is handled by ui_manager in main.py
         self.renderer.render()
-        self.log.draw(screen)
-        self.hud.draw(screen)
-
-        pygame.display.flip()
 
     # ----------------------------------------------------------------------
     # Internal helpers
