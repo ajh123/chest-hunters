@@ -4,6 +4,7 @@ import pygame
 import pygame_gui
 from scenes import Scene
 from scenes.menu_scene import MenuScene
+from assets import AssetManager
 
 class Game:
     def __init__(self, width: int = 800, height: int = 600):
@@ -14,9 +15,13 @@ class Game:
         self.display_width = width
         self.display_height = height
         self.clock = pygame.time.Clock()
+
+        self.asset_manager = AssetManager("assets")
+        self.asset_manager.load_assets()
+
         self.running = True
 
-        self.ui_manager = pygame_gui.UIManager((width, height), "assets/ui_theme.json")
+        self.ui_manager = pygame_gui.UIManager((width, height), self.asset_manager.get_absolute_path("ui/ui_theme.json"))
 
         # fixed-step timing (global)
         self.fixed_dt = 1.0 / 60.0

@@ -7,8 +7,8 @@ import random
 class Chest(Entity):
     def __init__(self, x: float, y: float):
         images = {
-            "closed": "assets/chest_closed.png",
-            "open": "assets/chest_open.png"
+            "closed": "textures/entities/chest_closed0.png",
+            "open": "textures/entities/chest_open0.png"
         }
         super().__init__(x, y, 32, 32, images)
         self.set_image_state("closed")
@@ -44,7 +44,7 @@ class Chest(Entity):
 class Tree(Entity):
     def __init__(self, x: float, y: float):
         images = {
-            "default": "assets/jungle-tree_0.png"
+            "default": "textures/entities/jungle_tree0.png"
         }
         super().__init__(x, y, 64, 64, images)
         self.set_image_state("default")
@@ -53,7 +53,7 @@ class Tree(Entity):
 class Zombie(Entity):
     def __init__(self, x: float, y: float):
         images = {
-            "default": "assets/zombie000.png"
+            "default": "textures/entities/zombie0.png"
         }
         super().__init__(x, y, 32, 64, images)
         self.set_image_state("default")

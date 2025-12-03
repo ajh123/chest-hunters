@@ -2,7 +2,7 @@ import pygame
 from typing import TYPE_CHECKING, List
 
 from .scene import Scene
-from graphics import Renderer, ImageLoader, MessageLog, HUD, get_screen_bounds
+from graphics import Renderer, MessageLog, HUD, get_screen_bounds
 from world import Tile, World
 from entities import Chest, Tree, Zombie, Player
 import random
@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from player import Player
 
 # Global tiles
-GRASS = Tile("grass", "assets/0_0.png")
-DIRT = Tile("dirt", "assets/32_64.png")
+GRASS = Tile("grass", "textures/tiles/grass0.png")
+DIRT = Tile("dirt", "textures/tiles/dirt0.png")
 
 
 class WorldScene(Scene):
@@ -31,8 +31,7 @@ class WorldScene(Scene):
         # Update HUD with player reference
         self.hud.player = self.player
 
-        self.loader = ImageLoader()
-        self.renderer = Renderer(self.game, self.player, self.world, self.loader)
+        self.renderer = Renderer(self.game, self.player, self.world)
 
         random.seed(0)
         self._generate_tiles()

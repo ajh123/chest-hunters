@@ -7,7 +7,6 @@ if TYPE_CHECKING:
     from main import Game
     from player import Player
     from world import World
-    from .image_utils import ImageLoader
 
 
 class Renderer:
@@ -15,13 +14,11 @@ class Renderer:
             self,
             game: 'Game',
             player: 'Player',
-            world: 'World',
-            image_loader: 'ImageLoader'
+            world: 'World'
         ):
         self.game = game
         self.player = player
         self.world = world
-        self.image_loader = image_loader
 
     def render(self):
         self.renderTileMap()
@@ -43,7 +40,7 @@ class Renderer:
             for y in range(start_y, end_y):            
                 tile = self.world.get_tile_at(x, y)
                 if tile:
-                    image = self.image_loader.load(tile.image)
+                    image = self.game.asset_manager.try_get_image(tile.image)
                     screen_x, screen_y = world_to_screen(x, y, self.player, self.game)
                     self.game.screen.blit(image, (screen_x, screen_y))
 
@@ -57,7 +54,7 @@ class Renderer:
             screen_x, screen_y = world_to_screen(entity.x, entity.y, self.player, self.game)
             img = entity.get_current_image()
             if img:
-                img = self.image_loader.load(img)
+                img = self.game.asset_manager.try_get_image(img)
                 # Align entity sprite so its base sits on the tile row.
                 # Many entity sprites are taller than a single tile; draw them
                 # shifted up by the difference between sprite height and tile size.

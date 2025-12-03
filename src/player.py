@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class Player(Entity):
     def __init__(self, game: 'Game'):
         image_map = {
-            "default": "assets/player004.png"
+            "default": "textures/entities/player0.png"
         }
         super().__init__(0, 0, 30, 48, image_map=image_map)  # Initialize the parent Entity class
 
