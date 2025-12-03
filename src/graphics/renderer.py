@@ -1,19 +1,23 @@
+from typing import TYPE_CHECKING, Tuple
+if TYPE_CHECKING:
+    from main import Game
+    from player import Player
+    from world import World
+    from .image_utils import ImageLoader
+
 import pygame
-from player import Player, world_to_screen, get_screen_bounds
-from world import World
 from constants import TILE_SIZE
-from .image_utils import ImageLoader
 
 
 class Renderer:
     def __init__(
             self,
-            screen: pygame.Surface,
+            game: Game,
             player: Player,
             world: World,
             image_loader: ImageLoader
         ):
-        self.screen = screen
+        self.game = game
         self.player = player
         self.world = world
         self.image_loader = image_loader
@@ -29,27 +33,27 @@ class Renderer:
         cam_px = (self.player.x * TILE_SIZE)
         cam_py = (self.player.y * TILE_SIZE)
 
-        start_x = int((cam_px - (self.player.display_width // 2)) // TILE_SIZE)
-        end_x = int((cam_px + (self.player.display_width // 2)) // TILE_SIZE + 1)
-        start_y = int((cam_py - (self.player.display_height // 2)) // TILE_SIZE)
-        end_y = int((cam_py + (self.player.display_height // 2)) // TILE_SIZE + 1)
+        start_x = int((cam_px - (self.game.display_width // 2)) // TILE_SIZE)
+        end_x = int((cam_px + (self.game.display_width // 2)) // TILE_SIZE + 1)
+        start_y = int((cam_py - (self.game.display_height // 2)) // TILE_SIZE)
+        end_y = int((cam_py + (self.game.display_height // 2)) // TILE_SIZE + 1)
 
         for x in range(start_x, end_x):
             for y in range(start_y, end_y):            
                 tile = self.world.get_tile_at(x, y)
                 if tile:
                     image = self.image_loader.load(tile.image)
-                    screen_x, screen_y = world_to_screen(x, y, self.player)
-                    self.screen.blit(image, (screen_x, screen_y))
+                    screen_x, screen_y = world_to_screen(x, y, self.player, self.game)
+                    self.game.screen.blit(image, (screen_x, screen_y))
 
     def renderEntities(self):       
-        min_x, min_y, max_x, max_y = get_screen_bounds(self.player)
-        
+        min_x, min_y, max_x, max_y = get_screen_bounds(self.player, self.game)
+
         # Query only entities in the visible region using spatial hash
         visible_entities = self.world.get_entities_in_region(min_x, min_y, max_x, max_y)
         
         for entity in visible_entities:
-            screen_x, screen_y = world_to_screen(entity.x, entity.y, self.player)
+            screen_x, screen_y = world_to_screen(entity.x, entity.y, self.player, self.game)
             img = entity.get_current_image()
             if img:
                 img = self.image_loader.load(img)
@@ -59,7 +63,7 @@ class Renderer:
                 offset_y = img.get_height() - TILE_SIZE
                 if offset_y < 0:
                     offset_y = 0
-                self.screen.blit(img, (screen_x, screen_y - offset_y))
+                self.game.screen.blit(img, (screen_x, screen_y - offset_y))
 
                 if entity.health > 0 and entity.max_health > 0:
                     if entity.health < entity.max_health:
@@ -71,14 +75,45 @@ class Renderer:
                         
                         # Draw background bar (red)
                         pygame.draw.rect(
-                            self.screen,
+                            self.game.screen,
                             (255, 0, 0),
                             (health_bar_x, health_bar_y, health_bar_width, health_bar_height)
                         )
                         
                         # Draw foreground bar (green)
                         pygame.draw.rect(
-                            self.screen,
+                            self.game.screen,
                             (0, 255, 0),
                             (health_bar_x, health_bar_y, int(health_bar_width * health_ratio), health_bar_height)
                         )
+
+
+def world_to_screen(world_x: float, world_y: float, player: Player, game: Game) -> Tuple[int, int]:
+    """Convert world coordinates to screen coordinates based on the player position."""
+    cam_px = int(player.x * TILE_SIZE)
+    cam_py = int(player.y * TILE_SIZE)
+
+    screen_x = int((world_x * TILE_SIZE) - cam_px + (game.display_width // 2))
+    screen_y = int((world_y * TILE_SIZE) - cam_py + (game.display_height // 2))
+    return screen_x, screen_y
+
+def screen_to_world(screen_x: int, screen_y: int, player: Player, game: Game) -> Tuple[float, float]:
+    """Convert screen coordinates to world coordinates based on the player position."""
+    cam_px = int(player.x * TILE_SIZE)
+    cam_py = int(player.y * TILE_SIZE)
+
+    world_x = (screen_x + cam_px - (game.display_width // 2)) / TILE_SIZE
+    world_y = (screen_y + cam_py - (game.display_height // 2)) / TILE_SIZE
+    return world_x, world_y
+
+def get_screen_bounds(player: Player, game: Game) -> Tuple[int, int, int, int]:
+    """Get the world coordinate bounds of the player's visible area."""
+    cam_px = int(player.x * TILE_SIZE)
+    cam_py = int(player.y * TILE_SIZE)
+
+    margin = 2  # Extra tiles of margin for large sprites
+    min_x = (cam_px - (game.display_width // 2)) // TILE_SIZE - margin
+    max_x = (cam_px + (game.display_width // 2)) // TILE_SIZE + margin
+    min_y = (cam_py - (game.display_height // 2)) // TILE_SIZE - margin
+    max_y = (cam_py + (game.display_height // 2)) // TILE_SIZE + margin
+    return min_x, min_y, max_x, max_y

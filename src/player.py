@@ -1,16 +1,20 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from main import Game
+
 import pygame
-from typing import Tuple
-from constants import TILE_SIZE
 from world import Entity
+from graphics.renderer import screen_to_world
 
 
 class Player(Entity):
-    def __init__(self, display_width: int, display_height: int):
+    def __init__(self, game: Game):
         image_map = {
             "default": "assets/player004.png"
         }
         super().__init__(0, 0, 30, 48, image_map=image_map)  # Initialize the parent Entity class
 
+        self.game = game
         self.speed = 3
         self.attack_range = 3
         self.attack_damage = 15
@@ -20,9 +24,6 @@ class Player(Entity):
         self.lives = 3
 
         self.set_image_state("default")
-
-        self.display_width = display_width
-        self.display_height = display_height
 
     def handle_input(self):
         """Read input and store movement vector."""
@@ -48,7 +49,7 @@ class Player(Entity):
         if not self.world:
             return
 
-        world_x, world_y = screen_to_world(mouse_x, mouse_y, self)
+        world_x, world_y = screen_to_world(mouse_x, mouse_y, self, self.game)
 
         # Try to interact with an entity at the clicked position
         entity = self.world.point_collision(world_x, world_y, excluded=[Player])
@@ -59,49 +60,20 @@ class Player(Entity):
         result = self.world.entities_in_radius(self.x, self.y, self.attack_range, excluded=[Player])
         for zombie in result:
             if isinstance(zombie, Zombie):
-                zombie.take_damage(self.attack_damage)
+                zombie.take_damage(self.attack_damage, self)
 
     def die(self):
         if not self.world:
             return
 
+        self.world.is_frozen = True
+        self.set_velocity(0, 0)
         self.lives -= 1
-        if self.lives <= 0:
-            self.world.is_frozen = True
-            return
-
         self.x = 0
         self.y = 0
+        if self.lives <= 0:
+            return
+
         self.health = 100
         self.max_health = 100
-
-
-def world_to_screen(world_x: float, world_y: float, player: Player) -> Tuple[int, int]:
-    """Convert world coordinates to screen coordinates based on the player position."""
-    cam_px = int(player.x * TILE_SIZE)
-    cam_py = int(player.y * TILE_SIZE)
-
-    screen_x = int((world_x * TILE_SIZE) - cam_px + (player.display_width // 2))
-    screen_y = int((world_y * TILE_SIZE) - cam_py + (player.display_height // 2))
-    return screen_x, screen_y
-
-def screen_to_world(screen_x: int, screen_y: int, player: Player) -> Tuple[float, float]:
-    """Convert screen coordinates to world coordinates based on the player position."""
-    cam_px = int(player.x * TILE_SIZE)
-    cam_py = int(player.y * TILE_SIZE)
-
-    world_x = (screen_x + cam_px - (player.display_width // 2)) / TILE_SIZE
-    world_y = (screen_y + cam_py - (player.display_height // 2)) / TILE_SIZE
-    return world_x, world_y
-
-def get_screen_bounds(player: Player) -> Tuple[int, int, int, int]:
-    """Get the world coordinate bounds of the player's visible area."""
-    cam_px = int(player.x * TILE_SIZE)
-    cam_py = int(player.y * TILE_SIZE)
-
-    margin = 2  # Extra tiles of margin for large sprites
-    min_x = (cam_px - (player.display_width // 2)) // TILE_SIZE - margin
-    max_x = (cam_px + (player.display_width // 2)) // TILE_SIZE + margin
-    min_y = (cam_py - (player.display_height // 2)) // TILE_SIZE - margin
-    max_y = (cam_py + (player.display_height // 2)) // TILE_SIZE + margin
-    return min_x, min_y, max_x, max_y
+        self.world.is_frozen = False

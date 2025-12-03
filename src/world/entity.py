@@ -97,7 +97,7 @@ class Entity:
     def interact(self, player: 'Player'):
         pass
 
-    def take_damage(self, amount: float):
+    def take_damage(self, amount: float, attacker: 'Entity | None' = None):
         if self.health < 0:
             return  # Infinite health
 
@@ -126,3 +126,8 @@ class Entity:
         if self.current_image_key:
             return self.image_map[self.current_image_key]
         return None
+
+    def __del__(self):
+        # Remove from world on garbage collection
+        if self.world:
+            self.world.remove_entity(self)

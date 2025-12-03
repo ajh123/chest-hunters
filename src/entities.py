@@ -1,6 +1,7 @@
 from player import Player
 from world import Entity
 import time
+import random
 
 
 class Chest(Entity):
@@ -23,8 +24,12 @@ class Chest(Entity):
             if not self.is_open and self.delay <= 0:
                 self.is_open = True
                 self.set_image_state("open")
-                self.delay = time.time() + 1.0  # 1 second delay before it can be opened again
-                self.world.log.add("The chest is a lie! It is completely empty.", duration=5)
+                self.delay = time.time() + 8.0  # 8 second delay before it can be opened again
+
+                # Give player random points between 5 and 20
+                points = random.randint(5, 20)
+                player.points += points
+                self.world.log.add(f"You found {points} points in the chest!", duration=5)
         else:
             self.world.log.add("Too far to interact with the chest.")
 
@@ -73,3 +78,17 @@ class Zombie(Entity):
             for entity in res:
                 if isinstance(entity, Player):
                     entity.take_damage(5)
+
+    def take_damage(self, amount: float, attacker: 'Entity | None' = None):
+        super().take_damage(amount, attacker=attacker)
+        if isinstance(attacker, Player):
+            if self.health > 0:
+                points = random.randint(10, 20)
+                attacker.points += points
+                if self.world:
+                    self.world.log.add(f"The zombie was damaged! +{points} points", duration=5)
+            else:
+                points = random.randint(20, 40)
+                attacker.points += points
+                if self.world:
+                    self.world.log.add(f"The zombie was defeated! +{points} points", duration=5)
