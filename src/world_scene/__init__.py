@@ -1,7 +1,6 @@
-from .scene import WorldScene
-from .player import Player
+from .scene import WorldScene, WorldSettings
 
 __all__ = [
     "WorldScene",
-    "Player",
+    "WorldSettings",
 ]

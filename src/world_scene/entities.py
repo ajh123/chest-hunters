@@ -24,10 +24,10 @@ class Chest(Entity):
             if not self.is_open and self.delay <= 0:
                 self.is_open = True
                 self.set_image_state("open")
-                self.delay = time.time() + 8.0  # 8 second delay before it can be opened again
+                self.delay = time.time() + 10.0  # 10 second delay before it can be opened again
 
-                # Give player random points between 5 and 20
-                points = random.randint(5, 20)
+                # Give player random points between 3 and 15
+                points = random.randint(3, 15)
                 player.points += points
                 self.world.log.add(f"You found {points} points in the chest!")
         else:

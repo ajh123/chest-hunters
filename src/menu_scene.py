@@ -59,5 +59,6 @@ class MenuScene(Scene):
                 ))
             elif event.type == pygame_gui.UI_BUTTON_PRESSED:
                 if event.ui_element == self.start_button:
-                    from world_scene import WorldScene
-                    self.game.set_scene(lambda: WorldScene(self.game))
+                    from world_scene import WorldScene, WorldSettings
+                    settings = WorldSettings(seed=0, max_waves=10)
+                    self.game.set_scene(lambda: WorldScene(self.game, settings))

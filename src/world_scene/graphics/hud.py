@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..player import Player
+    from ..waves import WaveManager
+    from main import Game
 
 
 class HUD:
@@ -11,15 +13,21 @@ class HUD:
     
     PANEL_WIDTH = 220
     PANEL_HEIGHT = 120
+    WAVE_PANEL_WIDTH = 320
+    WAVE_PANEL_HEIGHT = 80
     PADDING = 8
 
     def __init__(
         self,
         manager: pygame_gui.UIManager,
-        player: "Player | None" = None,
+        player: "Player",
+        wave_manager: "WaveManager",
+        game: 'Game'
     ):
         self._player = player
         self.manager = manager
+        self.wave_manager = wave_manager
+        self.game = game
 
         # Create a panel in the top-left corner with semi-transparent background
         self.panel = pygame_gui.elements.UIPanel(
@@ -69,8 +77,49 @@ class HUD:
             object_id="#info_panel/message"
         )
 
+        # Create a panel in the top-right corner for wave info, use the game's display width to position it
+        self.wave_panel = pygame_gui.elements.UIPanel(
+            relative_rect=pygame.Rect(
+                (
+                    self.game.display_width - self.WAVE_PANEL_WIDTH - self.PADDING,
+                    self.PADDING
+                ),
+                (self.WAVE_PANEL_WIDTH, self.WAVE_PANEL_HEIGHT)
+            ),
+            manager=self.manager,
+            object_id="#info_panel",
+        )
+
+        # Wave label
+        self.wave_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.PADDING, self.PADDING), (bar_width, 25)),
+            text="Wave: 1",
+            manager=self.manager,
+            container=self.wave_panel,
+            parent_element=self.wave_panel,
+            object_id="#info_panel/message"
+        )
+        
+        # Wave progress bar
+        self.wave_progress_bar = pygame_gui.elements.UIStatusBar(
+            relative_rect=pygame.Rect((self.PADDING + 100, self.PADDING), (bar_width, 25)),
+            manager=self.manager,
+            container=self.wave_panel,
+            parent_element=self.wave_panel,
+        )
+
+        # Wave progress label (centered on top of wave progress bar)
+        self.wave_progress_label = pygame_gui.elements.UILabel(
+            relative_rect=pygame.Rect((self.PADDING + 100, self.PADDING), (bar_width, 25)),
+            text="Wave Progress",
+            manager=self.manager,
+            container=self.wave_panel,
+            parent_element=self.wave_panel,
+            object_id="#info_panel/centered_message"
+        )
+
     @property
-    def player(self) -> "Player | None":
+    def player(self) -> "Player":
         return self._player
 
     @player.setter
@@ -79,9 +128,6 @@ class HUD:
 
     def update(self):
         """Update HUD values from player state."""
-        if self._player is None:
-            return
-
         # Update health bar
         health_percent = self._player.health / self._player.max_health
         self.health_bar.percent_full = health_percent
@@ -90,7 +136,25 @@ class HUD:
         self.points_label.set_text(f"Points: {self._player.points}")
         self.lives_label.set_text(f"Lives: {self._player.lives}")
 
+        # Update wave info
+        current_wave = self.wave_manager.get_current_wave()
+        if current_wave and self.wave_manager.current_wave_index is not None:
+            wave_number = self.wave_manager.current_wave_index + 1
+            self.wave_label.set_text(f"Wave: {wave_number}")
+            progress = self.wave_manager.get_current_progress()
+            if progress is not None:
+                self.wave_progress_bar.percent_full = progress
+            else:
+                self.wave_progress_bar.percent_full = 0.0
+
     def handle_resize(self):
         """Handle window resize - HUD stays in top-left, no repositioning needed."""
         # The panel is anchored to top-left, so no repositioning needed
+
+        # However, we need to reposition the wave panel to the top-right
+        self.wave_panel.set_relative_position((
+            self.game.display_width - self.WAVE_PANEL_WIDTH - self.PADDING,
+            self.PADDING
+        ))
+
         pass

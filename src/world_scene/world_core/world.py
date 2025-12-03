@@ -29,6 +29,10 @@ class World:
     def get_entities_in_region(self, min_x: float, min_y: float, max_x: float, max_y: float) -> List['Entity']:
         """Get all entities that may be visible in the given world coordinate region."""
         return self.spatial_hash.query_region(min_x, min_y, max_x, max_y)
+    
+    def get_entities_of_type(self, entity_type: Type['Entity']) -> List['Entity']:
+        """Get all entities of the specified type."""
+        return [ent for ent in self.spatial_hash.get_all_entities() if isinstance(ent, entity_type)]
 
     def get_tile_map(self) -> TileMap:
         return self.tile_map
