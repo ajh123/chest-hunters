@@ -19,7 +19,7 @@ class Chest(Entity):
         if self.world is None:
             return
 
-        distance = self.world.distance_between(self.x, self.y, player.x, player.y)
+        distance = self.world.distance_between(self.pos[0], self.pos[1], player.pos[0], player.pos[1])
         if distance < 4:
             if not self.is_open and self.delay <= 0:
                 self.is_open = True
@@ -74,7 +74,7 @@ class Zombie(Entity):
         # Simple attack logic here
 
         if random.random() < 0.05:
-            res = self.world.entities_in_radius(self.x, self.y, 2, excluded=[Zombie])
+            res = self.world.entities_in_radius(self.pos[0], self.pos[1], 2, excluded=[Zombie])
             for entity in res:
                 if isinstance(entity, Player):
                     entity.take_damage(5)

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Dict
 if TYPE_CHECKING:
     from ..player import Player
 
@@ -11,15 +11,12 @@ class Entity:
                  y: float,
                  width: int,
                  height: int,
-                 image_map: dict[str, str]
+                 image_map: Dict[str, str]
         ):
         self.world: World | None = None
-        self.world_units_width = width / TILE_SIZE
-        self.world_units_height = height / TILE_SIZE
-        self.x = x
-        self.y = y
-        self.velocity_dx = 0.0
-        self.velocity_dy = 0.0
+        self.size_world_units = (width / TILE_SIZE, height / TILE_SIZE)
+        self.pos = (x, y)
+        self.velocity = (0.0, 0.0)
         self.image_map = image_map
         self.current_image_key: str | None = None
         self.health = -1 # -1 means infinite health
@@ -46,52 +43,52 @@ class Entity:
         if not self.world:
             return
 
-        if self.velocity_dx == 0.0 and self.velocity_dy == 0.0:
+        if self.velocity == (0.0, 0.0):
             return
 
-        target_x = self.x + (self.velocity_dx * dt)
-        target_y = self.y + (self.velocity_dy * dt)
-        orig_x, orig_y = self.x, self.y
+        target_x = self.pos[0] + (self.velocity[0] * dt)
+        target_y = self.pos[1] + (self.velocity[1] * dt)
+        orig_x, orig_y = self.pos
 
         # Helper: test whether moving the entity to (cx, cy) would collide with another entity.
         # We temporarily set self.x/self.y so the world's AABB check uses the candidate position,
         # then restore the original coordinates immediately.
-        def _collides_at(cx: float, cy: float) -> bool:
+        def _collides_at(target: Tuple[float, float]) -> bool:
             if not self.world:
                 return False
 
-            saved_x, saved_y = self.x, self.y
+            saved_pos = self.pos
             try:
-                self.x, self.y = cx, cy
+                self.pos = target
                 return bool(self.world.has_collision(self))
             finally:
-                self.x, self.y = saved_x, saved_y
+                self.pos = saved_pos
 
         # 1) Combined move
-        if not _collides_at(target_x, target_y):
-            self.x, self.y = target_x, target_y
+        if not _collides_at((target_x, target_y)):
+            self.pos = (target_x, target_y)
             self.world.update_entity_position(self)
             return
 
         # 2) Horizontal-only (from original Y)
-        if not _collides_at(target_x, orig_y):
+        if not _collides_at((target_x, orig_y)):
             # horizontal allowed
-            self.x = target_x
+            self.pos = (target_x, self.pos[1])
         else:
             # blocked on X
-            self.x = orig_x
-            self.velocity_dx = 0.0
+            self.pos = (orig_x, self.pos[1])
+            self.velocity = (0.0, self.velocity[1])
 
         # 3) Vertical (from whatever x we ended up with after horizontal attempt)
-        if not _collides_at(self.x, target_y):
-            self.y = target_y
+        if not _collides_at((self.pos[0], target_y)):
+            self.pos = (self.pos[0], target_y)
         else:
             # blocked on Y
             self.y = orig_y
             self.velocity_dy = 0.0
 
         # Update spatial hash if position changed
-        if self.x != orig_x or self.y != orig_y:
+        if self.pos != (orig_x, orig_y):
             self.world.update_entity_position(self)
 
     def interact(self, player: 'Player'):
@@ -112,11 +109,10 @@ class Entity:
         self.world.remove_entity(self)
 
     def set_velocity(self, dx: float, dy: float):
-        self.velocity_dx = dx
-        self.velocity_dy = dy
+        self.velocity = (dx, dy)
 
-    def get_position(self) -> tuple[float, float]:
-        return self.x, self.y
+    def get_position(self) -> Tuple[float, float]:
+        return self.pos
     
     def set_image_state(self, key: str):
         if key in self.image_map:

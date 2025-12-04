@@ -28,8 +28,8 @@ class Renderer:
         # Determine visible tile range
         # player.x / y are in tile coordinates; convert player center to
         # pixel coordinates before computing visible tile ranges.
-        cam_px = (self.player.x * TILE_SIZE)
-        cam_py = (self.player.y * TILE_SIZE)
+        cam_px = (self.player.pos[0] * TILE_SIZE)
+        cam_py = (self.player.pos[1] * TILE_SIZE)
 
         start_x = int((cam_px - (self.game.display_width // 2)) // TILE_SIZE)
         end_x = int((cam_px + (self.game.display_width // 2)) // TILE_SIZE + 1)
@@ -51,7 +51,7 @@ class Renderer:
         visible_entities = self.world.get_entities_in_region(min_x, min_y, max_x, max_y)
         
         for entity in visible_entities:
-            screen_x, screen_y = world_to_screen(entity.x, entity.y, self.player, self.game)
+            screen_x, screen_y = world_to_screen(entity.pos[0], entity.pos[1], self.player, self.game)
             img = entity.get_current_image()
             if img:
                 img = self.game.asset_manager.try_get_image(img)
@@ -88,8 +88,8 @@ class Renderer:
 
 def world_to_screen(world_x: float, world_y: float, player: 'Player', game: 'Game') -> Tuple[int, int]:
     """Convert world coordinates to screen coordinates based on the player position."""
-    cam_px = int(player.x * TILE_SIZE)
-    cam_py = int(player.y * TILE_SIZE)
+    cam_px = int(player.pos[0] * TILE_SIZE)
+    cam_py = int(player.pos[1] * TILE_SIZE)
 
     screen_x = int((world_x * TILE_SIZE) - cam_px + (game.display_width // 2))
     screen_y = int((world_y * TILE_SIZE) - cam_py + (game.display_height // 2))
@@ -97,8 +97,8 @@ def world_to_screen(world_x: float, world_y: float, player: 'Player', game: 'Gam
 
 def screen_to_world(screen_x: int, screen_y: int, player: 'Player', game: 'Game') -> Tuple[float, float]:
     """Convert screen coordinates to world coordinates based on the player position."""
-    cam_px = int(player.x * TILE_SIZE)
-    cam_py = int(player.y * TILE_SIZE)
+    cam_px = int(player.pos[0] * TILE_SIZE)
+    cam_py = int(player.pos[1] * TILE_SIZE)
 
     world_x = (screen_x + cam_px - (game.display_width // 2)) / TILE_SIZE
     world_y = (screen_y + cam_py - (game.display_height // 2)) / TILE_SIZE
@@ -106,8 +106,8 @@ def screen_to_world(screen_x: int, screen_y: int, player: 'Player', game: 'Game'
 
 def get_screen_bounds(player: 'Player', game: 'Game') -> Tuple[int, int, int, int]:
     """Get the world coordinate bounds of the player's visible area."""
-    cam_px = int(player.x * TILE_SIZE)
-    cam_py = int(player.y * TILE_SIZE)
+    cam_px = int(player.pos[0] * TILE_SIZE)
+    cam_py = int(player.pos[1] * TILE_SIZE)
 
     margin = 2  # Extra tiles of margin for large sprites
     min_x = (cam_px - (game.display_width // 2)) // TILE_SIZE - margin

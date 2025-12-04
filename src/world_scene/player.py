@@ -58,7 +58,7 @@ class Player(Entity):
             entity.interact(self)
     
         # Try attacking zombies in range
-        result = self.world.entities_in_radius(self.x, self.y, self.attack_range, excluded=[Player])
+        result = self.world.entities_in_radius(self.pos[0], self.pos[1], self.attack_range, excluded=[Player])
         for zombie in result:
             if isinstance(zombie, Zombie):
                 zombie.take_damage(self.attack_damage, self)
@@ -70,8 +70,7 @@ class Player(Entity):
         self.world.is_frozen = True
         self.set_velocity(0, 0)
         self.lives -= 1
-        self.x = 0
-        self.y = 0
+        self.pos = (0, 0)  # Respawn at origin
         if self.lives <= 0:
             return
 
