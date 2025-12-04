@@ -72,6 +72,7 @@ class Player(Entity):
         self.lives -= 1
         self.x = 0
         self.y = 0
+        self.world.update_entity_position(self)
         if self.lives <= 0:
             return
 
